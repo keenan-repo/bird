@@ -1,5 +1,10 @@
 // I can't get it to run. Can't build ant file. Test commit
 
+//Collision fix: I need to change the collision detection to set the spd to be 0 for the direction its being hit by.
+//(instead of the key being set to false)
+//So if it hits a wall from the left (Hitting it's right side) you set spdR=0 while it's intersecting.
+//to make that work, the method "check" will return the spd of each direction, either a 10 or 0 depending on if it sees a wall
+
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Rectangle;
