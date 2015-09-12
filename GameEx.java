@@ -29,8 +29,9 @@ public class GameEx extends JPanel {
 	public Rectangle screen, bird, wall, box, top, bot, left, right ;
 	public Rectangle bounds ; 
 	public Rectangle[] arr;
-	public int x_pos=100 , y_pos=100 ;
+	public int x_pos=100 , y_pos=100, spdU, spdD, spdR, spdL ;
 	public boolean[] keys = new boolean[256];
+	public boolean keyL, keyR, keyU, keyD ;
 	BufferedImage img;
 	public int[][] map = new int[600][400];
 	public int[][] unit = new int[50][48];	
@@ -111,23 +112,40 @@ public class GameEx extends JPanel {
 	 }
 
 	
-	public void processInput(int spd) {
+	public void processInput() {
 	    if(keys[KeyEvent.VK_W] || keys[KeyEvent.VK_UP]){
-	        setBirdY(getBirdY()-spd);
-	        
+	    	setBirdY(getBirdY()-spdU);
+	    	System.out.println("moving");	        
+	    } else {
+	    	spdU=0;
 	    }
 
 	    if(keys[KeyEvent.VK_S] || keys[KeyEvent.VK_DOWN]){
-	        setBirdY(getBirdY()+spd);
+	        setBirdY(getBirdY()+spdD);
+	    } else {
+	    	spdD=0;
 	    }
 
 	    if(keys[KeyEvent.VK_A] || keys[KeyEvent.VK_LEFT]){
-	        setBirdX(getBirdX()-spd);
+	        setBirdX(getBirdX()-spdL);
+	    } else {
+	    	spdL=0;
 	    }
 
 	    if(keys[KeyEvent.VK_D] || keys[KeyEvent.VK_RIGHT]){
-	        setBirdX(getBirdX()+spd);
+	        setBirdX(getBirdX()+spdR);
+	    } else {
+	    	spdR=0;
 	    }
+	    /*if (spdU>0){
+		    for (int i = 1 ; i<50 ; i++){
+		    	setBirdY(getBirdY()+spdU/(5*i));
+		    	System.out.println("slowing");
+		    	//setBirdY(getBirdY()-spdD/(5*i));
+		    	//setBirdY(getBirdX()+spdR/(5*i));
+		    	//setBirdY(getBirdX()-spdL/(5*i));
+		    }
+	    }*/
 	}
 	
 	
@@ -136,7 +154,7 @@ public class GameEx extends JPanel {
 	 class VGTimerTask extends TimerTask{
 		 public void run() {
 			 look();
-			 processInput(10);
+			 processInput();
 			 frame.repaint();
 
 			 
@@ -154,6 +172,13 @@ public class GameEx extends JPanel {
 
 		public void keyReleased(KeyEvent e) {
 		    keys[e.getKeyCode()] = false;
+		    /*for (int i = 1 ; i<10 ; i++){
+		    	setBirdY(getBirdY()+spdU/(5*i));
+		    	setBirdY(getBirdY()-spdD/(5*i));
+		    	setBirdY(getBirdX()+spdR/(5*i));
+		    	setBirdY(getBirdX()-spdL/(5*i));
+		    }
+		    spdU=0; spdD=0 ; spdL=0; spdR=0; */
 		}
 
 		public void keyTyped(KeyEvent e) {
@@ -192,6 +217,10 @@ public class GameEx extends JPanel {
     	this.bird.x = birdX;
     	}
     
+   /* void resetspd(){
+    	spdU=0; spdD=0 ; spdL=0; spdR=0;
+    }*/
+    
     void setTop(int x, int y, int w, int h){
     	this.top.x = x;
     	this.top.y = y;
@@ -217,33 +246,18 @@ public class GameEx extends JPanel {
     	this.left.height = h;
     	}
     
-    //build the map that we can test the unit against. This includes walls and stuff
-	 int[][] getMap(){
-		 for(int i = 0; i < map.length/2; i++) {
-			    Arrays.fill(map[i], 1);
-			}
-		return this.map;
-	}
-	 
-	 //the unit block
-	 int getUnit(int i, int j){
-		for (int[] row: unit) {
-			Arrays.fill(row, 1);
-		}
-		return this.unit[i][j];
-	}
-	
 	 void check(Rectangle r) {
-		 
+		 spdU=10; spdD=10; spdR=10; spdL=10 ;
 			if (top.intersects(r)) {
-				keys[KeyEvent.VK_UP] = false ;
+				spdU=0;
 			}  if(bot.intersects(r)) {
-				keys[KeyEvent.VK_DOWN] = false ;
+				spdD=0;
 			}  if(right.intersects(r)) {
-				keys[KeyEvent.VK_RIGHT] = false ;					
+				spdR=0;			
 			}  if(left.intersects(r)) {
-				keys[KeyEvent.VK_LEFT] = false ;
+				spdL=0;
 			}
 		 
 	 }
+
 }
