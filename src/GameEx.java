@@ -30,12 +30,11 @@ public class GameEx extends JPanel {
 	public Rectangle screen, bird, wall, box1, box2, box3, top, bot, left, right, box12, box22, box32 ;
 	public Rectangle bounds ; 
 	public Rectangle[] arr1, arr2;
-	public int x_pos=100 , y_pos=100, spdU, spdD, spdR, spdL, Lvl=1 ;
+	public Rectangle[][] maps;
+	public int x_pos=550 , y_pos=100, spdU, spdD, spdR, spdL, Lvl=1 ;
 	public boolean[] keys = new boolean[256];
-	public boolean keyL, keyR, keyU, keyD, swap ;
-	BufferedImage img;
-	public int[][] map = new int[600][400];
-	public int[][] unit = new int[50][48];	
+	public boolean keyL, keyR, keyU, keyD, swap, got_seed ;
+	BufferedImage img, seeds;
 
 	public GameEx()  {
 		
@@ -48,6 +47,7 @@ public class GameEx extends JPanel {
 		bird = new Rectangle(x_pos,  y_pos, 10, 10);
 		bounds = new Rectangle(50, 50, 600, 400);
 		frame = new JFrame("Bird Game");
+		got_seed = false;
 		
 		//this is where I program the map. This needs to be cleaned up if I want to make a big game
 		//level1
@@ -68,12 +68,14 @@ public class GameEx extends JPanel {
 		arr2[2]=box22;
 		arr2[3]=box32;
 
+		//Arrays.fill(maps[1], arr1);
 		
 		vgTask = new VGTimerTask();	
 			    
 	    
 	    try {
 	    	img = ImageIO.read(new File("sprite.png"));
+	    	seeds = ImageIO.read(new File("seeds.png"));
 	        // Open an audio input stream.
 	    	File soundFile = new File("Shy-Animal2.wav");
 	    	AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
@@ -91,10 +93,10 @@ public class GameEx extends JPanel {
 	     }
 	    
 	    //hit box
-		top= new Rectangle(getBirdX(),  getBirdY()-5, img.getWidth(), 5);
-		bot= new Rectangle(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 5);
-		left= new Rectangle(getBirdX()-5,  getBirdY(), 5, img.getHeight());
-		right= new Rectangle(getBirdX()+img.getWidth(),  getBirdY(), 5, img.getHeight());
+		top= new Rectangle(getBirdX(),  getBirdY()-10, img.getWidth(), 10);
+		bot= new Rectangle(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 10);
+		left= new Rectangle(getBirdX()-10,  getBirdY(), 10, img.getHeight());
+		right= new Rectangle(getBirdX()+img.getWidth(),  getBirdY(), 10, img.getHeight());
 	}
 	
 
@@ -130,6 +132,7 @@ public class GameEx extends JPanel {
 			Lvl=2;
 			setBirdX(590);
 			setBirdY(150);
+			
 
 		}
 		if (getBirdY()>400 && Lvl==2){
@@ -141,20 +144,25 @@ public class GameEx extends JPanel {
 			Lvl=1;
 			setBirdX(60);
 			setBirdY(150);
+		} else if(Lvl == 2 && !got_seed){
+			g2d.drawImage(seeds, 50,  50, null);
+			if (getBirdX()==50 && getBirdY() == 50){
+				got_seed = true;
+			}
 		}
 		
 		//top		
-		setTop(getBirdX(),  getBirdY()-5, img.getWidth(), 5);
+		setTop(getBirdX(),  getBirdY()-10, img.getWidth(), 10);
 
 		
 		//bottom
-		setBot(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 5);
+		setBot(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 10);
 		
 		//left
-		setLeft(getBirdX()-5,  getBirdY(), 5, img.getHeight());
+		setLeft(getBirdX()-10,  getBirdY(), 10, img.getHeight());
 		
 		//right
-		setRight(getBirdX()+img.getWidth(),  getBirdY(), 5, img.getHeight());
+		setRight(getBirdX()+img.getWidth(),  getBirdY(), 10, img.getHeight());
 		g2d.draw(top);
 		g2d.draw(bot);
 		g2d.draw(left);
@@ -412,5 +420,11 @@ public class GameEx extends JPanel {
 			}
 		 
 	 }
+	 Rectangle[][] getMap(){
+		 for(int i = 0; i < maps.length/2; i++) {
+			    Arrays.fill(maps[i], 1);
+			}
+		return this.maps;
+	}
 
 }
