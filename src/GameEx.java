@@ -1,4 +1,5 @@
 import java.awt.Graphics2D;
+import javax.sound.sampled.*;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
@@ -26,10 +27,10 @@ public class GameEx extends JPanel {
 	
 	public VGTimerTask vgTask;
 	public JFrame frame;
-	public Rectangle screen, bird, wall, box1, box2, box3, top, bot, left, right ;
+	public Rectangle screen, bird, wall, box1, box2, box3, top, bot, left, right, box12, box22, box32 ;
 	public Rectangle bounds ; 
-	public Rectangle[] arr;
-	public int x_pos=100 , y_pos=100, spdU, spdD, spdR, spdL ;
+	public Rectangle[] arr1, arr2;
+	public int x_pos=100 , y_pos=100, spdU, spdD, spdR, spdL, Lvl=1 ;
 	public boolean[] keys = new boolean[256];
 	public boolean keyL, keyR, keyU, keyD, swap ;
 	BufferedImage img;
@@ -47,26 +48,56 @@ public class GameEx extends JPanel {
 		bird = new Rectangle(x_pos,  y_pos, 10, 10);
 		bounds = new Rectangle(50, 50, 600, 400);
 		frame = new JFrame("Bird Game");
-		arr = new Rectangle[10];
+		
+		//this is where I program the map. This needs to be cleaned up if I want to make a big game
+		//level1
+		arr1 = new Rectangle[10];
 		box1= new Rectangle(10,200,300,50);
 		box2= new Rectangle(350,300,50,50);
 		box3= new Rectangle(400,350,50,50);
-		arr[1]=box1;
-		arr[2]=box2;
-		arr[3]=box3;
+		arr1[1]=box1;
+		arr1[2]=box2;
+		arr1[3]=box3;
+		
+		//level2
+		arr2 = new Rectangle[10];
+		box12= new Rectangle(350,200,300,50);
+		box22= new Rectangle(50,150,150,50);
+		box32= new Rectangle(270,170,50,50);
+		arr2[1]=box12;
+		arr2[2]=box22;
+		arr2[3]=box32;
 
 		
 		vgTask = new VGTimerTask();	
-		
+			    
+	    
 	    try {
-	        img = ImageIO.read(new File("sprite.png"));
-	    } catch (IOException e) {
-	    }
-		top= new Rectangle(getBirdX(),  getBirdY()-10, img.getWidth(), 10);
-		bot= new Rectangle(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 10);
-		left= new Rectangle(getBirdX()-10,  getBirdY(), 10, img.getHeight());
-		right= new Rectangle(getBirdX()+img.getWidth(),  getBirdY(), 10, img.getHeight());
+	    	img = ImageIO.read(new File("sprite.png"));
+	        // Open an audio input stream.
+	    	File soundFile = new File("Shy-Animal2.wav");
+	    	AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+	        // Get a sound clip resource.
+	        Clip clip = AudioSystem.getClip();
+	        // Open audio clip and load samples from the audio input stream.
+	        clip.open(audioIn);
+	        clip.start();
+	     } catch (UnsupportedAudioFileException e) {
+	        e.printStackTrace();
+	     } catch (IOException e) {
+	        e.printStackTrace();
+	     } catch (LineUnavailableException e) {
+	        e.printStackTrace();
+	     }
+	    
+	    //hit box
+		top= new Rectangle(getBirdX(),  getBirdY()-5, img.getWidth(), 5);
+		bot= new Rectangle(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 5);
+		left= new Rectangle(getBirdX()-5,  getBirdY(), 5, img.getHeight());
+		right= new Rectangle(getBirdX()+img.getWidth(),  getBirdY(), 5, img.getHeight());
 	}
+	
+
 
 	public void paint(Graphics g){
 		super.paintComponent(g);
@@ -93,28 +124,51 @@ public class GameEx extends JPanel {
 
 	    } 
 		g2d.drawImage(img, getBirdX(),  getBirdY(), null);
+		System.out.println("X= " + getBirdX() + " Y= " + getBirdY() + " Lvl= " + Lvl);
 		
-		//top
+		if (getBirdX()==50 && getBirdY()==150 && Lvl==1){
+			Lvl=2;
+			setBirdX(590);
+			setBirdY(150);
+
+		}
+		if (getBirdY()>400 && Lvl==2){
+			Lvl=1;
+			setBirdX(590);
+			setBirdY(390);
+
+		} else if(getBirdX()==600 && getBirdY()==150 && Lvl==2){
+			Lvl=1;
+			setBirdX(60);
+			setBirdY(150);
+		}
 		
-		setTop(getBirdX(), getBirdY()-10, img.getWidth(), 10);
-		//g2d.draw(top);
+		//top		
+		setTop(getBirdX(),  getBirdY()-5, img.getWidth(), 5);
+
 		
 		//bottom
-		setBot(getBirdX(), getBirdY()+img.getWidth(), img.getWidth(), 10);
-		//g2d.draw(bot);
+		setBot(getBirdX(),  getBirdY()+img.getHeight(), img.getWidth(), 5);
 		
 		//left
-		setLeft(getBirdX()-10,  getBirdY(), 10, img.getHeight());
-		//g2d.draw(left);
+		setLeft(getBirdX()-5,  getBirdY(), 5, img.getHeight());
 		
 		//right
-		setRight(getBirdX()+img.getWidth(),  getBirdY(), 10, img.getHeight());
-		//g2d.draw(right);
-		
+		setRight(getBirdX()+img.getWidth(),  getBirdY(), 5, img.getHeight());
+		g2d.draw(top);
+		g2d.draw(bot);
+		g2d.draw(left);
+		g2d.draw(right);
 		
 		//box or any other stuff
-		for(int i=1; i<=3 ; i++){
-			g2d.fill(arr[i]);
+		if (Lvl == 1){
+			for(int i=1; i<=3 ; i++){
+				g2d.fill(arr1[i]);
+			}
+		} else if (Lvl == 2){
+			for(int i=1; i<=3 ; i++){
+				g2d.fill(arr2[i]);
+			}
 		}
 			//g2d.fill(box2);
 		
@@ -126,9 +180,17 @@ public class GameEx extends JPanel {
 	
 	 void look() {
 		 spdU=10; spdD=10; spdR=10; spdL=10 ;
-			for(int i=1; i<=3 ; i++){
-				check(arr[i]);
+		 
+			if (Lvl == 1){
+				for(int i=1; i<=3 ; i++){
+					check(arr1[i]);
+				}
+			} else if (Lvl == 2){
+				for(int i=1; i<=3 ; i++){
+					check(arr2[i]);
+				}
 			}
+			
 		 boundary(bounds);
 
 		
@@ -137,10 +199,28 @@ public class GameEx extends JPanel {
 	
 	public void processInput() {
 	    if(keys[KeyEvent.VK_W] || keys[KeyEvent.VK_UP]){
+	    	
+	    	try {
+		        // Open an audio input stream.
+		    	File soundJump = new File("jump.wav");
+		    	AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundJump);
+		        // Get a sound clip resource.
+		        Clip clip = AudioSystem.getClip();
+		        // Open audio clip and load samples from the audio input stream.
+		        clip.open(audioIn);
+		        clip.start();
+		     } catch (UnsupportedAudioFileException e) {
+		        e.printStackTrace();
+		     } catch (IOException e) {
+		        e.printStackTrace();
+		     } catch (LineUnavailableException e) {
+		        e.printStackTrace();
+		     }
+	    	
 		    	boolean jump = false;
-		    	
+
 		    	for(int i=1; i<=3; i++){
-			    	if(bot.intersects(arr[i])) {
+			    	if(bot.intersects(arr1[i]) || bot.intersects(arr2[i]) ) {
 						jump = true;
 			    	} else if (!bot.intersects(bounds)){
 			    		jump = true;
@@ -151,6 +231,7 @@ public class GameEx extends JPanel {
 		    		setBirdY(getBirdY()-75);
 		    	}		    	
 		    }
+	    keys[KeyEvent.VK_UP]=false;
 
 	    if(keys[KeyEvent.VK_S] || keys[KeyEvent.VK_DOWN]){
 	        setBirdY(getBirdY()+spdD);
@@ -238,6 +319,11 @@ public class GameEx extends JPanel {
 		public void keyTyped(KeyEvent e) {
 		}	
 	}
+	
+
+	   
+
+	   
 	
 	public static void main(String[] args) {
 		java.util.Timer vgTimer = new java.util.Timer();
